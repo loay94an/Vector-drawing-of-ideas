@@ -1,0 +1,2429 @@
+/* =========================================
+   RASEM 2.0 - FINAL CANVAS LAYOUT
+   ========================================= */
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.app-header {
+  flex: 0 0 var(--header-height);
+}
+
+.workspace {
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#toolbar,
+.toolbar {
+  flex: 0 0 var(--toolbar-width);
+  min-height: 0;
+}
+
+.canvas-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--canvas-bg);
+}
+
+.canvas-viewport {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #e9e9ed;
+}
+
+#drawingCanvas {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  background: #ffffff;
+  overflow: hidden;
+  touch-action: none;
+}
+
+#canvasBackground {
+  fill: #ffffff;
+}
+
+.panel {
+  flex: 0 0 var(--panel-width);
+  min-height: 0;
+}
+
+.zoom-controls {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 5;
+}
+
+@media (max-width: 600px) {
+  .workspace {
+    min-width: 0;
+  }
+
+  .canvas-area {
+    min-width: 0;
+  }
+
+  .panel {
+    flex-shrink: 0;
+  }
+}
+/* =====================================================
+   RASEM 2.0
+   Main Application Stylesheet
+   File: css/app.css
+   ===================================================== */
+
+/* =====================================================
+   1. ROOT VARIABLES
+   ===================================================== */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #101116;
+  --surface: #191b23;
+  --surface-2: #222530;
+  --surface-3: #2b2e3a;
+
+  --border: #343744;
+  --border-light: #414555;
+
+  --text: #f1f1f5;
+  --text-secondary: #a5a8b5;
+  --text-muted: #747887;
+
+  --primary: #8065ed;
+  --primary-hover: #967ff5;
+  --primary-soft: rgba(128, 101, 237, 0.16);
+
+  --success: #35bd88;
+  --danger: #ed626e;
+  --warning: #e9b65c;
+
+  --canvas-bg: #e9e9ed;
+  --canvas-grid: rgba(0, 0, 0, 0.08);
+
+  --toolbar-width: 64px;
+  --panel-width: 280px;
+  --header-height: 54px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --shadow:
+    0 5px 20px rgba(0, 0, 0, 0.2);
+
+  --transition:
+    160ms ease;
+}
+
+/* =====================================================
+   2. LIGHT THEME
+   ===================================================== */
+
+body.light {
+  color-scheme: light;
+
+  --bg: #f1f2f6;
+  --surface: #ffffff;
+  --surface-2: #f5f5f8;
+  --surface-3: #e9eaf0;
+
+  --border: #dedfe7;
+  --border-light: #c9cad4;
+
+  --text: #252632;
+  --text-secondary: #626575;
+  --text-muted: #858898;
+
+  --primary: #7055db;
+  --primary-hover: #6045cb;
+  --primary-soft: rgba(112, 85, 219, 0.12);
+
+  --canvas-bg: #ffffff;
+  --canvas-grid: rgba(0, 0, 0, 0.07);
+
+  --shadow:
+    0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* =====================================================
+   3. RESET
+   ===================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family:
+    Inter,
+    "Segoe UI",
+    Tahoma,
+    Arial,
+    sans-serif;
+
+  background: var(--bg);
+  color: var(--text);
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  transition:
+    background var(--transition),
+    color var(--transition);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+input,
+select,
+textarea {
+  color: var(--text);
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--primary);
+  color: white;
+}
+
+/* =====================================================
+   4. SCROLLBARS
+   ===================================================== */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-light) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* =====================================================
+   5. APPLICATION LAYOUT
+   ===================================================== */
+
+#app {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  height: 100dvh;
+
+  min-width: 320px;
+  overflow: hidden;
+}
+
+.app-header {
+  height: var(--header-height);
+  min-height: var(--header-height);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 16px;
+
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+
+  z-index: 20;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  overflow: hidden;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  overflow: hidden;
+}
+
+/* =====================================================
+   6. HEADER
+   ===================================================== */
+
+.header-left,
+.header-right,
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-center {
+  flex: 1;
+  justify-content: center;
+}
+
+.app-logo {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.app-logo span {
+  color: var(--primary);
+}
+
+.document-title {
+  max-width: 220px;
+
+  color: var(--text-secondary);
+  font-size: 13px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =====================================================
+   7. TOOLBAR
+   ===================================================== */
+
+#toolbar,
+.toolbar {
+  width: var(--toolbar-width);
+  min-width: var(--toolbar-width);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 7px;
+  padding: 12px 7px;
+
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  z-index: 10;
+}
+
+.tool-group {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 5px;
+}
+
+.tool-divider {
+  width: 75%;
+  height: 1px;
+
+  background: var(--border);
+
+  margin: 5px 0;
+}
+
+/* =====================================================
+   8. TOOL BUTTONS
+   ===================================================== */
+
+.tool-btn,
+.icon-btn,
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+
+  background: transparent;
+  color: var(--text-secondary);
+
+  transition:
+    background var(--transition),
+    color var(--transition),
+    border-color var(--transition);
+}
+
+.tool-btn {
+  width: 46px;
+  height: 46px;
+
+  min-width: 46px;
+
+  font-size: 19px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+
+  font-size: 16px;
+}
+
+.action-btn {
+  min-height: 36px;
+  padding: 0 12px;
+
+  gap: 7px;
+}
+
+.tool-btn:hover,
+.icon-btn:hover,
+.action-btn:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.tool-btn.active,
+.tool-btn[aria-pressed="true"] {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary-hover);
+}
+
+.action-btn.primary {
+  background: var(--primary);
+  color: white;
+}
+
+.action-btn.primary:hover {
+  background: var(--primary-hover);
+}
+
+.action-btn.danger {
+  color: var(--danger);
+}
+
+/* =====================================================
+   9. PANELS
+   ===================================================== */
+
+.panel {
+  width: var(--panel-width);
+  min-width: var(--panel-width);
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+
+  overflow: hidden;
+}
+
+.panel-header {
+  min-height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 14px;
+
+  border-bottom: 1px solid var(--border);
+
+  font-weight: 600;
+}
+
+.panel-content {
+  flex: 1;
+  min-height: 0;
+
+  padding: 12px;
+
+  overflow-y: auto;
+}
+
+.panel-section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-section:last-child {
+  border-bottom: none;
+}
+
+.panel-title {
+  margin-bottom: 10px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  color: var(--text-secondary);
+}
+
+/* =====================================================
+   10. DRAWING WORKSPACE
+   ===================================================== */
+
+#viewport,
+.viewport {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+
+  position: relative;
+
+  overflow: hidden;
+
+  background: var(--bg);
+}
+
+.canvas-container {
+  position: absolute;
+  inset: 0;
+
+  overflow: hidden;
+}
+
+/* =====================================================
+   11. SVG CANVAS
+   ===================================================== */
+
+#drawingCanvas {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  background: var(--canvas-bg);
+
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+#viewport {
+  touch-action: none;
+}
+
+#drawingLayer,
+#previewLayer {
+  transform-box: fill-box;
+}
+
+#previewLayer {
+  pointer-events: none;
+}
+
+/* =====================================================
+   12. CANVAS INTERACTION
+   ===================================================== */
+
+#drawingCanvas[data-tool="pen"],
+#drawingCanvas[data-tool="pencil"],
+#drawingCanvas[data-tool="marker"] {
+  cursor: crosshair;
+}
+
+#drawingCanvas[data-tool="eraser"] {
+  cursor: cell;
+}
+
+#drawingCanvas[data-tool="hand"] {
+  cursor: grab;
+}
+
+#drawingCanvas[data-tool="hand"]:active {
+  cursor: grabbing;
+}
+
+#drawingCanvas[data-tool="selector"] {
+  cursor: default;
+}
+
+/* =====================================================
+   13. COLOR PICKER
+   ===================================================== */
+
+.color-picker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.color-swatch {
+  width: 27px;
+  height: 27px;
+
+  border: 2px solid var(--border);
+  border-radius: 50%;
+
+  cursor: pointer;
+  transition: transform var(--transition);
+}
+
+.color-swatch:hover {
+  transform: scale(1.12);
+}
+
+.color-swatch.active {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+input[type="color"] {
+  width: 38px;
+  height: 38px;
+
+  padding: 2px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  background: var(--surface-2);
+  cursor: pointer;
+}
+
+/* =====================================================
+   14. FORM CONTROLS
+   ===================================================== */
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),
+select,
+textarea {
+  width: 100%;
+  min-height: 36px;
+
+  padding: 7px 10px;
+
+  background: var(--surface-2);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  outline: none;
+
+  transition: border-color var(--transition);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* =====================================================
+   15. LAYER PANEL
+   ===================================================== */
+
+.layer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.layer-item {
+  min-height: 42px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 9px;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+
+  background: var(--surface-2);
+
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+.layer-item:hover {
+  background: var(--surface-3);
+}
+
+.layer-item.active {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+}
+
+.layer-name {
+  flex: 1;
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layer-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* =====================================================
+   16. BRUSH SETTINGS
+   ===================================================== */
+
+.brush-preview {
+  width: 100%;
+  min-height: 65px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.brush-preview-dot {
+  border-radius: 50%;
+  background: var(--text);
+}
+
+/* =====================================================
+   17. SELECTION
+   ===================================================== */
+
+.selection-box {
+  fill: rgba(128, 101, 237, 0.08);
+
+  stroke: var(--primary);
+  stroke-width: 1;
+
+  stroke-dasharray: 5 4;
+
+  pointer-events: none;
+}
+
+.selection-handle {
+  fill: white;
+
+  stroke: var(--primary);
+  stroke-width: 1.5;
+
+  cursor: pointer;
+}
+
+/* =====================================================
+   18. TOOLTIP
+   ===================================================== */
+
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+
+  position: absolute;
+  left: calc(100% + 9px);
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  padding: 5px 9px;
+
+  background: #090a0e;
+  color: white;
+
+  font-size: 11px;
+  white-space: nowrap;
+
+  border-radius: var(--radius-sm);
+
+  opacity: 0;
+  visibility: hidden;
+
+  pointer-events: none;
+  z-index: 100;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* =====================================================
+   19. MODALS
+   ===================================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  z-index: 1000;
+}
+
+.modal {
+  width: min(440px, 100%);
+  max-height: 85vh;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow);
+
+  overflow: hidden;
+}
+
+.modal-header,
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 14px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+}
+
+.modal-body {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* =====================================================
+   20. TOAST NOTIFICATIONS
+   ===================================================== */
+
+#toast,
+.toast {
+  position: fixed;
+
+  bottom: 24px;
+  left: 50%;
+
+  transform: translate(-50%, 15px);
+
+  padding: 10px 18px;
+
+  background: var(--surface-3);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  box-shadow: var(--shadow);
+
+  opacity: 0;
+  visibility: hidden;
+
+  pointer-events: none;
+
+  z-index: 2000;
+
+  transition: var(--transition);
+}
+
+#toast.show,
+.toast.show {
+  opacity: 1;
+  visibility: visible;
+
+  transform: translate(-50%, 0);
+}
+
+/* =====================================================
+   21. STATUS BAR
+   ===================================================== */
+
+.status-bar {
+  height: 28px;
+  min-height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 12px;
+
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+
+  color: var(--text-secondary);
+
+  font-size: 11px;
+}
+
+.zoom-label {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =====================================================
+   22. UTILITIES
+   ===================================================== */
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-1 {
+  gap: 4px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.gap-3 {
+  gap: 12px;
+}
+
+.gap-4 {
+  gap: 16px;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.text-danger {
+  color: var(--danger);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =====================================================
+   23. RESPONSIVE: TABLETS
+   ===================================================== */
+
+@media (max-width: 900px) {
+  :root {
+    --panel-width: 235px;
+    --toolbar-width: 56px;
+  }
+
+  .tool-btn {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+  }
+
+  .app-header {
+    padding: 0 10px;
+  }
+
+  .document-title {
+    max-width: 140px;
+  }
+}
+
+/* =====================================================
+   24. RESPONSIVE: MOBILE
+   ===================================================== */
+
+@media (max-width: 600px) {
+  :root {
+    --header-height: 48px;
+    --toolbar-width: 48px;
+  }
+
+  .app-header {
+    padding: 0 8px;
+  }
+
+  .app-logo {
+    font-size: 16px;
+  }
+
+  .header-center {
+    display: none;
+  }
+
+  .header-left,
+  .header-right {
+    gap: 5px;
+  }
+
+  #toolbar,
+  .toolbar {
+    padding: 8px 3px;
+    gap: 5px;
+  }
+
+  .tool-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+
+    font-size: 17px;
+  }
+
+  .panel {
+    position: absolute;
+
+    top: var(--header-height);
+    right: 0;
+    bottom: 28px;
+
+    width: min(280px, 82vw);
+    min-width: 0;
+
+    z-index: 30;
+
+    box-shadow: var(--shadow);
+  }
+
+  .panel.mobile-hidden {
+    display: none;
+  }
+
+  .status-bar {
+    font-size: 10px;
+    padding: 0 7px;
+  }
+
+  [data-tooltip]::after {
+    display: none;
+  }
+}
+
+/* =====================================================
+   25. ACCESSIBILITY
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =====================================================
+   END OF RASEM 2.0 MAIN STYLESHEET
+   ===================================================== */
+
+/* =========================================
+   RASEM - CANVAS AND PROPERTIES REPAIR
+   ========================================= */
+
+.workspace {
+  display: flex !important;
+  flex: 1 1 0 !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+#toolbar {
+  flex: 0 0 var(--toolbar-width) !important;
+}
+
+.canvas-area {
+  display: flex !important;
+  flex: 1 1 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.canvas-viewport {
+  display: block !important;
+  position: relative !important;
+  flex: 1 1 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  background: #e9e9ed !important;
+}
+
+svg#drawingCanvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  background: #ffffff !important;
+}
+
+#canvasBackground {
+  fill: #ffffff !important;
+}
+
+#layersPanel.properties-panel {
+  display: flex !important;
+  flex: 0 0 var(--panel-width) !important;
+  width: var(--panel-width) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  background: var(--surface) !important;
+  border-left: 1px solid var(--border);
+}
+
+@media (max-width: 600px) {
+  #layersPanel.properties-panel {
+    position: absolute !important;
+    top: var(--header-height) !important;
+    right: 0 !important;
+    bottom: 28px !important;
+    width: min(280px, 82vw) !important;
+    z-index: 30 !important;
+  }
+
+  .canvas-area {
+    flex: 1 1 0 !important;
+  }
+}
+
+/* END CANVAS REPAIR */
+
+/* =========================================
+   RASEM - MOBILE WORKSPACE OPTIMIZATION
+   ========================================= */
+
+@media (max-width: 600px) {
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #app {
+    width: 100%;
+    height: 100dvh;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .app-header {
+    flex: 0 0 48px;
+    min-height: 48px;
+    padding: 0 6px;
+  }
+
+  .workspace {
+    display: flex !important;
+    flex-direction: row !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #toolbar {
+    flex: 0 0 44px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    padding: 6px 2px !important;
+    gap: 5px !important;
+  }
+
+  .canvas-area {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+  }
+
+  .canvas-viewport {
+    flex: 1 1 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #drawingCanvas {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+  }
+
+  #layersPanel.properties-panel {
+    position: fixed !important;
+    top: 48px !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: min(260px, 80vw) !important;
+    min-width: 0 !important;
+    z-index: 50 !important;
+    box-shadow: 0 0 20px rgba(0,0,0,.4);
+  }
+
+  #layersPanel.mobile-hidden {
+    display: none !important;
+  }
+
+  .zoom-controls {
+    min-height: 38px;
+    padding: 4px;
+    justify-content: center;
+  }
+
+  .tool-btn,
+  .tool {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* END MOBILE OPTIMIZATION */
+
+/* ==========================================
+   RASEM - CONCEPTS INSPIRED MOBILE INTERFACE
+   ========================================== */
+
+#mobilePanelBtn {
+  display: none;
+}
+
+@media (max-width: 700px) {
+
+  html, body, #app {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-header {
+    flex: 0 0 46px;
+    min-height: 46px;
+    padding: 0 8px;
+  }
+
+  .app-header .brand {
+    font-size: 13px;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .header-actions button {
+    min-width: 34px;
+    min-height: 34px;
+    padding: 4px;
+    font-size: 12px;
+  }
+
+  #mobilePanelBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .workspace {
+    position: relative;
+    display: flex !important;
+    flex: 1 1 0 !important;
+    flex-direction: row !important;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #toolbar,
+  .toolbar {
+    position: fixed !important;
+    z-index: 40;
+    left: 10px;
+    right: 10px;
+    bottom: calc(38px + env(safe-area-inset-bottom));
+    width: auto !important;
+    min-width: 0 !important;
+    height: 54px;
+    padding: 5px 8px !important;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 16px;
+    background: rgba(28,29,36,.96);
+    box-shadow: 0 5px 22px rgba(0,0,0,.28);
+    scrollbar-width: none;
+  }
+
+  #toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  #toolbar .tool,
+  #toolbar .tool-btn {
+    flex: 0 0 42px;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    font-size: 19px !important;
+  }
+
+  #toolbar .tool.active {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+  }
+
+  .canvas-area {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden;
+    background: #e9e9ed;
+  }
+
+  .canvas-viewport {
+    flex: 1 1 0 !important;
+    width: 100% !important;
+    height: 0;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden;
+    background: #e9e9ed;
+  }
+
+  #drawingCanvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    background: #fff;
+    touch-action: none;
+  }
+
+  #layersPanel.properties-panel {
+    display: none;
+    position: fixed !important;
+    top: 54px !important;
+    right: 8px !important;
+    bottom: auto !important;
+    width: min(290px, calc(100vw - 16px));
+    max-height: 65dvh;
+    min-width: 0 !important;
+    overflow-y: auto;
+    z-index: 60 !important;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: 0 8px 30px rgba(0,0,0,.35);
+  }
+
+  #layersPanel.mobile-panel-open {
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .zoom-controls {
+    position: absolute;
+    z-index: 10;
+    top: 8px;
+    left: 8px;
+    min-height: 36px;
+    padding: 4px 7px;
+    border-radius: 12px;
+    background: rgba(30,30,36,.88);
+    color: white;
+    gap: 5px;
+  }
+
+  .zoom-controls button {
+    min-width: 32px;
+    min-height: 30px;
+  }
+
+  .app-footer {
+    flex: 0 0 24px;
+    min-height: 24px;
+    padding: 0 8px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  #toolbar,
+  .toolbar {
+    left: 6px;
+    right: 6px;
+    gap: 4px !important;
+  }
+
+  #toolbar .tool,
+  #toolbar .tool-btn {
+    flex-basis: 38px;
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+  }
+}
+
+/* END CONCEPTS INSPIRED MOBILE INTERFACE */
+
+/* =====================================
+   FLOATING MOBILE PROPERTIES POPUP
+   ===================================== */
+
+@media (max-width: 700px) {
+
+  #layersPanel.properties-panel {
+    display: none !important;
+
+    position: fixed !important;
+    top: 58px !important;
+    right: 10px !important;
+    left: auto !important;
+    bottom: auto !important;
+
+    width: min(310px, calc(100vw - 20px)) !important;
+    max-height: min(70dvh, 560px) !important;
+
+    min-width: 0 !important;
+    height: auto !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    padding: 16px !important;
+
+    background: var(--surface) !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 16px !important;
+
+    z-index: 1000 !important;
+
+    box-shadow:
+      0 12px 35px rgba(0,0,0,.35),
+      0 0 0 100vmax rgba(0,0,0,.16) !important;
+
+    animation: propertiesPopupIn .18s ease-out;
+  }
+
+  #layersPanel.mobile-panel-open {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  #closeMobilePanel {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    position: sticky;
+    top: 0;
+    align-self: flex-end;
+
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: var(--surface-3);
+    color: var(--text);
+
+    font-size: 25px;
+    line-height: 1;
+    z-index: 2;
+  }
+
+  #layersPanel .panel-section {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 14px 0;
+  }
+
+  #layersPanel h3 {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  #layersPanel input[type="range"] {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #layersPanel .panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  #mobilePanelBtn {
+    position: relative;
+    z-index: 1001;
+  }
+}
+
+@keyframes propertiesPopupIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* END FLOATING PROPERTIES POPUP */
+
+/* =====================================
+   RASEM CONCEPTS STYLE COLOR PICKER
+   ===================================== */
+
+.color-menu-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+#colorMenuPreview {
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  background: #111111;
+  border: 2px solid rgba(255,255,255,.8);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.2);
+}
+
+.color-popup {
+  position: fixed;
+  z-index: 2000;
+  top: 60px;
+  right: 12px;
+  width: min(340px, calc(100vw - 24px));
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 12px 40px rgba(0,0,0,.4);
+}
+
+.color-popup[hidden] {
+  display: none !important;
+}
+
+.color-popup-head,
+.color-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+#closeColorPopup {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 23px;
+}
+
+.color-picker-body {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 18px 0;
+}
+
+.hue-wheel {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #ff0000, #ffff00, #00ff00, #00ffff,
+    #0000ff, #ff00ff, #ff0000
+  );
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.hue-wheel::after {
+  content: "";
+  position: absolute;
+  inset: 22px;
+  border-radius: 50%;
+  background: var(--surface);
+  pointer-events: none;
+}
+
+.hue-wheel-marker {
+  position: absolute;
+  z-index: 2;
+  width: 15px;
+  height: 15px;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 1px 5px #000;
+  pointer-events: none;
+}
+
+.sv-area {
+  position: relative;
+  width: 100%;
+  height: 145px;
+  border-radius: 9px;
+  overflow: hidden;
+  background-color: hsl(0,100%,50%);
+  background-image:
+    linear-gradient(to top, #000, transparent),
+    linear-gradient(to right, #fff, transparent);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.sv-marker {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #333;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.color-value-row {
+  margin-top: 8px;
+}
+
+.color-value-row input {
+  flex: 1;
+  min-width: 0;
+  direction: ltr;
+  text-align: center;
+  font-family: monospace;
+}
+
+#colorPopupPreview {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 8px;
+  background: #111;
+  border: 1px solid var(--border);
+}
+
+.recent-colors-title {
+  margin-top: 16px;
+  margin-bottom: 9px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.recent-color-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.recent-color-list button {
+  width: 29px;
+  height: 29px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .color-popup {
+    top: 54px;
+    right: 8px;
+    width: min(320px, calc(100vw - 16px));
+  }
+
+  .hue-wheel {
+    width: 170px;
+    height: 170px;
+  }
+}
+
+
+
+/* =========================================
+   RASEM - CONCEPTS COLOR WHEEL ENHANCEMENT
+   ========================================= */
+
+#colorMenuBtn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+#colorMenuPreview {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.2);
+}
+
+#colorPickerPopup {
+  position: fixed !important;
+  top: 58px !important;
+  right: 12px !important;
+  left: auto !important;
+  z-index: 3000 !important;
+  width: min(340px, calc(100vw - 20px)) !important;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 12px 40px rgba(0,0,0,.45);
+}
+
+.hue-wheel {
+  width: min(220px, 65vw);
+  height: min(220px, 65vw);
+  border-radius: 50%;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: crosshair;
+}
+
+.hue-wheel-marker,
+.sv-marker {
+  pointer-events: none;
+}
+
+.sv-area {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: crosshair;
+  min-height: 130px;
+}
+
+.recent-color-list button {
+  transition: transform .12s ease;
+}
+
+.recent-color-list button:active {
+  transform: scale(.88);
+}
+
+@media (max-width: 600px) {
+  #colorPickerPopup {
+    top: 54px !important;
+    right: 8px !important;
+    width: min(330px, calc(100vw - 16px)) !important;
+  }
+
+  .hue-wheel {
+    width: 190px;
+    height: 190px;
+  }
+}
+
+/* END CONCEPTS COLOR ENHANCEMENT */
+
+/* =====================================
+   RASEM - CONCEPTS FLOATING COLOR WHEEL
+   ===================================== */
+
+#colorMenuBtn {
+  position: relative !important;
+  z-index: 2002 !important;
+  border-radius: 50% !important;
+  flex-shrink: 0;
+}
+
+#colorPickerPopup.color-popup {
+  position: fixed !important;
+  top: 58px !important;
+  right: 12px !important;
+  left: auto !important;
+  width: min(310px, calc(100vw - 24px)) !important;
+  max-height: min(75dvh, 570px) !important;
+  overflow-y: auto !important;
+  padding: 14px !important;
+  border-radius: 22px !important;
+  z-index: 2001 !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,.42) !important;
+  transform-origin: top right;
+  animation: conceptsWheelOpen .18s ease-out;
+}
+
+#colorPickerPopup[hidden] {
+  display: none !important;
+}
+
+@keyframes conceptsWheelOpen {
+  from {
+    opacity: 0;
+    transform: scale(.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.color-picker-body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 18px !important;
+}
+
+.hue-wheel {
+  width: 220px !important;
+  height: 220px !important;
+  border-radius: 50% !important;
+  background: conic-gradient(
+    #ff0000,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #ff00ff,
+    #ff0000
+  ) !important;
+  touch-action: none !important;
+  cursor: grab;
+}
+
+.hue-wheel:active {
+  cursor: grabbing;
+}
+
+.hue-wheel::after {
+  inset: 25px !important;
+  border: 2px solid rgba(255,255,255,.12);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hue-wheel-marker {
+  width: 20px !important;
+  height: 20px !important;
+  border: 3px solid white !important;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.3),
+              0 2px 8px rgba(0,0,0,.5) !important;
+}
+
+.sv-area {
+  height: 125px !important;
+  width: 100% !important;
+  border-radius: 12px !important;
+  touch-action: none !important;
+}
+
+.sv-marker {
+  width: 19px !important;
+  height: 19px !important;
+  border: 3px solid white !important;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.4) !important;
+}
+
+#colorPopupPreview {
+  border-radius: 50% !important;
+  width: 38px !important;
+  height: 38px !important;
+  flex-basis: 38px !important;
+  border: 2px solid white !important;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.recent-color-list button {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  transition: transform .15s ease;
+}
+
+.recent-color-list button:active {
+  transform: scale(.85);
+}
+
+@media(max-width:600px) {
+  #colorPickerPopup.color-popup {
+    top: 54px !important;
+    right: 8px !important;
+    width: min(300px, calc(100vw - 16px)) !important;
+  }
+
+  .hue-wheel {
+    width: 200px !important;
+    height: 200px !important;
+  }
+}
+
+/* END CONCEPTS FLOATING COLOR WHEEL */
+
+/* CONCEPTS STYLE - INTEGRATED COLOR WHEEL */
+
+#colorPickerPopup.color-popup {
+  width: min(320px, calc(100vw - 20px)) !important;
+  top: 58px !important;
+  right: 10px !important;
+  border-radius: 22px !important;
+  padding: 15px !important;
+}
+
+.color-picker-body {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 20px 0 !important;
+}
+
+.hue-wheel {
+  position: relative !important;
+  width: 240px !important;
+  height: 240px !important;
+  flex: 0 0 240px !important;
+  border-radius: 50% !important;
+  background: conic-gradient(
+    #ff0000,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #ff00ff,
+    #ff0000
+  ) !important;
+  touch-action: none !important;
+  cursor: crosshair !important;
+}
+
+/* Remove old center cover */
+.hue-wheel::after {
+  display: none !important;
+}
+
+.hue-wheel-marker {
+  position: absolute !important;
+  z-index: 5 !important;
+  width: 20px !important;
+  height: 20px !important;
+  border: 3px solid white !important;
+  border-radius: 50% !important;
+  transform: translate(-50%, -50%);
+  pointer-events: none !important;
+}
+
+/* Saturation and brightness inside the wheel */
+.sv-area {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%);
+  width: 145px !important;
+  height: 145px !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  background-color: hsl(0,100%,50%);
+  background-image:
+    linear-gradient(to top, #000, transparent),
+    linear-gradient(to right, #fff, transparent);
+  border: 3px solid rgba(255,255,255,.9);
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+  touch-action: none !important;
+  cursor: crosshair;
+  z-index: 2;
+}
+
+.sv-marker {
+  position: absolute !important;
+  width: 19px !important;
+  height: 19px !important;
+  border: 3px solid white !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.45);
+  transform: translate(-50%,-50%);
+  pointer-events: none !important;
+  z-index: 4;
+}
+
+@media(max-width:600px) {
+  .hue-wheel {
+    width: 220px !important;
+    height: 220px !important;
+    flex-basis: 220px !important;
+  }
+
+  .sv-area {
+    width: 132px !important;
+    height: 132px !important;
+  }
+}
+
+/* END INTEGRATED COLOR WHEEL */
+
+/* FLOATING TOOL SETTINGS */
+
+.tool-settings-popup {
+  position: fixed;
+  z-index: 3000;
+  top: 115px;
+  left: 65px;
+  width: min(290px, calc(100vw - 85px));
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 12px 40px rgba(0,0,0,.32);
+}
+
+.tool-settings-popup[hidden] {
+  display: none !important;
+}
+
+.tool-settings-head,
+.tool-setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.tool-settings-head {
+  margin-bottom: 20px;
+}
+
+#closeToolSettings {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 22px;
+}
+
+.tool-setting-row {
+  margin: 14px 0 7px;
+  font-size: 13px;
+}
+
+.tool-settings-popup output {
+  font-family: monospace;
+  font-weight: 700;
+}
+
+.tool-settings-popup input[type="range"] {
+  width: 100%;
+  accent-color: #3988e8;
+  cursor: pointer;
+}
+
+.tool-settings-popup .setting-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+@media(max-width:600px) {
+  .tool-settings-popup {
+    top: 100px;
+    left: 58px;
+    width: min(270px, calc(100vw - 70px));
+  }
+}
+
+/* END FLOATING TOOL SETTINGS */
+
+/* RASEM - Bottom toolbar color button */
+#toolbar #colorMenuBtn {
+  flex-shrink: 0;
+  margin-top: auto;
+  margin-bottom: 4px;
+}
+
+#toolbar #colorMenuBtn #colorMenuPreview {
+  display: block;
+}
+
+
+/* RASEM: Responsive bottom color control */
+@media (min-width: 601px) {
+  #toolbar #colorMenuBtn {
+    margin-top: auto !important;
+    margin-inline-start: 0 !important;
+    margin-bottom: 4px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  #toolbar #colorMenuBtn {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    margin-inline-start: auto !important;
+    margin-inline-end: 4px !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+
+
+/* =========================================
+   RASEM SETTINGS POPUP
+========================================= */
+
+.settings-menu[hidden] {
+  display: none !important;
+}
+
+.settings-menu {
+  position: fixed;
+  top: calc(var(--header-height, 54px) + 8px);
+  inset-inline-end: 12px;
+  z-index: 10000;
+  width: min(310px, calc(100vw - 24px));
+  max-height: min(75vh, 600px);
+  overflow-y: auto;
+  padding: 14px;
+  border: 1px solid var(--border, #383b48);
+  border-radius: 14px;
+  background: var(--surface, #191b23);
+  color: var(--text, #f1f1f5);
+  box-shadow: 0 12px 36px rgba(0,0,0,.35);
+}
+
+.settings-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--surface-3, #2b2e3a);
+}
+
+.settings-menu-header button {
+  min-width: 36px;
+  min-height: 36px;
+  font-size: 22px;
+}
+
+.settings-menu-items {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 46px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: var(--surface-2, #222530);
+}
+
+.settings-menu-item button {
+  flex-shrink: 0;
+}
+
+#settingsMenuBtn {
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 20px;
+}
+
+@media (max-width: 600px) {
+  .settings-menu {
+    inset-inline: 8px;
+    width: auto;
+    top: calc(var(--header-height, 48px) + 6px);
+  }
+}
+
+
+/* RASEM SETTINGS DOCUMENT ACTIONS */
+
+.settings-document-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-document-action button {
+  min-width: 76px;
+  min-height: 38px;
+  flex-shrink: 0;
+}
+
+
+/* RASEM_LAYERS_PANEL_HIDDEN */
+#layersPanel[hidden] {
+  display: none !important;
+}
+
+#layersPanel {
+  position: relative;
+  z-index: 25;
+  overflow-y: auto;
+}
+
+@media (max-width: 600px) {
+  #layersPanel {
+    position: fixed !important;
+    top: var(--header-height) !important;
+    right: 0 !important;
+    bottom: 28px !important;
+    width: min(280px, 82vw) !important;
+    z-index: 50 !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* RASEM_CANVAS_NAVIGATION_FIX */
+#canvasBoard {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+#canvasBoard[hidden] {
+  display: none !important;
+}
+
+#layersPanel[hidden] {
+  display: none !important;
+}

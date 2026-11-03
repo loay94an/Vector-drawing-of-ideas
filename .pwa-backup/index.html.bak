@@ -1,0 +1,940 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <meta name="theme-color" content="#171717">
+
+  <title>Rasem 2.0</title>
+
+  <link rel="stylesheet" href="./css/app.css">
+
+  <script type="module" src="./js/app.js"></script>
+
+<style>
+.geometry-tool-menu {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.geometry-menu {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
+  width: min(340px, calc(100vw - 32px)) !important;
+  max-height: min(75vh, 560px);
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+
+  margin: 0 !important;
+  padding: 18px;
+
+  background: var(--surface, #ffffff);
+  color: var(--text, #222222);
+
+  border: 1px solid var(--border, #cccccc);
+  border-radius: 16px;
+
+  box-shadow:
+    0 0 0 100vmax rgba(0,0,0,.38),
+    0 12px 40px rgba(0,0,0,.25);
+
+  z-index: 99999 !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+.geometry-menu[hidden] {
+  display: none !important;
+}
+
+
+.geometry-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 6px;
+  margin: 0;
+
+  border: 1px solid var(--border, #dddddd);
+  border-radius: 10px;
+
+  background: var(--surface-2, #f5f5f5);
+  color: var(--text, #222222);
+
+  text-align: center;
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+
+.geometry-item:hover,
+.geometry-item.active {
+  background: var(--primary-soft, #e8e8ff);
+  color: var(--primary, #4444bb);
+}
+
+.geometry-menu:not([hidden]) {
+  display: grid !important;
+}
+
+.geometry-item:active,
+.geometry-item.active {
+  background: var(--primary-soft, #e8e8ff);
+  border-color: var(--primary, #5555cc);
+  color: var(--primary, #4444bb);
+}
+
+@media (max-width: 480px) {
+  .geometry-menu {
+    width: calc(100vw - 28px) !important;
+    max-height: 75vh;
+    padding: 13px;
+    gap: 7px;
+  }
+
+  .geometry-item {
+    min-height: 46px;
+    font-size: 13px;
+  }
+}
+
+</style>
+
+
+<style>
+.brush-library {
+  position: fixed;
+  z-index: 10000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: min(340px, calc(100vw - 30px));
+  max-height: 75vh;
+  overflow: auto;
+  padding: 16px;
+  background: #24242c;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 14px;
+  box-shadow: 0 10px 40px #0009;
+}
+.brush-library:not([hidden]) {
+  display: block;
+}
+.brush-library-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.brush-presets {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 8px;
+  margin: 12px 0;
+}
+.brush-library button {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #777;
+  background: #383844;
+  color: white;
+}
+.brush-library button.active {
+  border-color: #9988ff;
+  background: #51447e;
+}
+#brushPreview {
+  padding: 12px;
+  background: #17171d;
+  border-radius: 8px;
+}
+</style>
+
+</head>
+
+<body class="dark">
+
+  <div id="app">
+
+    <!-- HEADER -->
+    <header class="app-header">
+
+      <div class="brand">
+        <span class="brand-icon">R</span>
+        <span>Rasem 2.0</span>
+      </div>
+
+      <div class="header-actions">
+        <button id="undoBtn" disabled title="تراجع">
+          ↶
+        </button>
+
+        <button id="redoBtn" disabled title="إعادة">
+          ↷
+        </button>
+
+        
+
+        
+
+        
+
+        <input
+          id="importFileInput"
+          type="file"
+          accept=".rasem,.json,application/json"
+          hidden
+        />
+
+
+<button class="tool"
+                data-tool="selector"
+                title="التحديد">
+          ↖
+        </button>
+<button class="tool"
+                data-tool="lasso"
+                title="التحديد الحر">
+          ◌
+        </button>
+
+        
+
+
+      </div>
+
+    
+<button id="settingsMenuBtn"
+        type="button"
+        aria-label="الإعدادات"
+        aria-expanded="false"
+        aria-controls="settingsMenu"
+        title="الإعدادات">⚙</button>
+
+</header>
+
+<!-- SETTINGS POPUP -->
+
+<div id="settingsMenu"
+     class="settings-menu"
+     role="menu"
+     aria-label="الإعدادات"
+     hidden>
+
+  <div class="settings-menu-header">
+    <strong>الإعدادات</strong>
+    <button id="closeSettingsMenu"
+            type="button"
+            aria-label="إغلاق">×</button>
+  </div>
+
+  <div class="settings-menu-items">
+
+    <div class="settings-menu-item">
+      <span>لوحة الرسم</span>
+      <button id="openCanvasBtn" type="button">
+        فتح
+      </button>
+    </div>
+
+    <div class="settings-menu-item">
+      <span>الطبقات</span>
+      <button id="openLayersBtn" type="button">
+        فتح
+      </button>
+    </div>
+
+    <div class="settings-menu-item">
+      <span>لوحة جديدة</span>
+      <button id="newCanvasBtn" type="button">جديد</button>
+    </div>
+
+    <div class="settings-menu-item settings-document-action">
+      <span>استيراد مستند</span>
+      <button id="importBtn" type="button">استيراد</button>
+    </div>
+
+    <div class="settings-menu-item settings-document-action">
+      <span>حفظ المستند</span>
+      <button id="saveBtn" type="button">حفظ</button>
+    </div>
+
+    <div class="settings-menu-item settings-document-action">
+      <span>تصدير المستند</span>
+      <button id="exportBtn" type="button">تصدير</button>
+    </div>
+
+    <div class="settings-menu-item">
+      <span>المظهر والألوان</span>
+      <button id="themeBtn" type="button" title="تغيير المظهر">
+        ☼
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONCEPTS STYLE COLOR PICKER -->
+    <section id="colorPickerPopup" class="color-popup"
+             aria-label="منتقي الألوان" hidden>
+      <div class="color-popup-head">
+        <strong>اختيار اللون</strong>
+        <button id="closeColorPopup" type="button"
+                aria-label="إغلاق">×</button>
+      </div>
+
+      <div class="color-picker-body">
+  <div class="hue-wheel" id="hueWheel"
+       role="group" aria-label="عجلة اختيار الألوان">
+    <span class="hue-wheel-marker" id="hueMarker"></span>
+
+    <div class="sv-area" id="svArea"
+         role="slider" aria-label="التشبع والسطوع"
+         tabindex="0">
+      <span class="sv-marker" id="svMarker"></span>
+    </div>
+  </div>
+</div>
+
+<div class="color-value-row">
+        <label for="colorHexInput">HEX</label>
+        <input id="colorHexInput" type="text"
+               value="#111111" maxlength="7"
+               spellcheck="false" dir="ltr">
+        <span id="colorPopupPreview"></span>
+      </div>
+
+      <div class="recent-colors-title">الألوان الأخيرة</div>
+      <div id="recentColorList" class="recent-color-list"></div>
+    </section>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="workspace">
+
+      <!-- TOOLBAR -->
+      <aside id="toolbar" class="toolbar">
+
+        <button class="tool active"
+                data-tool="pen"
+                title="القلم">
+          ✎
+        </button>
+
+        <button class="tool"
+                data-tool="pencil"
+                title="الرصاص">
+          ✏
+        </button>
+
+        <button class="tool"
+                data-tool="marker"
+                title="الماركر">
+          ▰
+        </button>
+
+        <button class="tool"
+                data-tool="eraser"
+                title="الممحاة">
+          ◫
+        </button>
+
+        
+
+        
+
+        
+        <div class="geometry-tool-menu">
+
+          <button class="tool geometry-menu-toggle"
+                  data-tool="shapes"
+                  type="button"
+                  aria-expanded="false"
+                  title="الأشكال الهندسية">
+            ⬡
+          </button>
+
+          <div class="geometry-menu" hidden>
+
+            <button type="button" class="geometry-item"
+                    data-tool="line">／ خط مستقيم</button>
+
+            <button type="button" class="geometry-item"
+                    data-tool="curve">⌒ خط منحني</button>
+
+            <button type="button" class="geometry-item"
+                    data-tool="circle">○ دائرة</button>
+
+            <button type="button" class="geometry-item"
+                    data-tool="ellipse">⬭ بيضاوي</button>
+
+            <button type="button" class="geometry-item"
+                    data-tool="triangle">△ مثلث</button>
+
+            <button type="button" class="geometry-item"
+                    data-tool="rect">▭ مستطيل</button>
+
+            <button type="button" class="geometry-item"
+                    data-tool="square">□ مربع</button>
+
+            <button type="button" class="geometry-item"
+                    data-tool="diamond">◇ معين</button>
+
+            <button type="button" class="geometry-item"
+                    data-tool="arrow">➜ سهم</button>
+
+          </div>
+        </div>
+
+
+
+        <button class="tool"
+                data-tool="hand"
+                title="تحريك اللوحة">
+          ✋
+        </button>
+
+<button id="colorMenuBtn" class="color-menu-btn"
+        type="button" title="اختيار اللون" aria-label="اختيار اللون"
+        aria-expanded="false">
+  <span id="colorMenuPreview"></span>
+</button>
+
+      </aside>
+
+
+      <!-- FLOATING TOOL SETTINGS -->
+      <section id="toolSettingsPopup"
+               class="tool-settings-popup"
+               aria-label="إعدادات الأداة"
+               hidden>
+
+        <div class="tool-settings-head">
+          <strong id="toolSettingsTitle">إعدادات الفرشاة</strong>
+          <button id="closeToolSettings" type="button"
+                  aria-label="إغلاق">×</button>
+        </div>
+
+        <div class="tool-setting-row">
+          <label for="brushSize">حجم الفرشاة</label>
+          <output id="brushSizeValue">5</output>
+        </div>
+        <input id="brushSize" data-setting="size"
+               type="range" min="0.5" max="100"
+               step="0.5" value="5">
+
+
+        <section id="toolBrushStyles" dir="rtl">
+          <strong>شكل الفرشاة</strong>
+          <div class="tool-brush-presets">
+            <button type="button" data-brush="round">دائرية</button>
+            <button type="button" data-brush="square">مربعة</button>
+            <button type="button" data-brush="dash">متقطعة</button>
+            <button type="button" data-brush="soft">ناعمة</button>
+          </div>
+          <output id="toolBrushPreview">دائرية</output>
+        </section>
+        <style>
+          #toolBrushStyles {
+            margin: 14px 0;
+            padding: 12px;
+            background: #20202a;
+            border-radius: 10px;
+          }
+          .tool-brush-presets {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 8px;
+            margin-top: 10px;
+          }
+          .tool-brush-presets button {
+            padding: 10px;
+            border: 1px solid #666;
+            border-radius: 8px;
+            background: #383844;
+            color: white;
+          }
+          .tool-brush-presets button.active {
+            background: #51447e;
+            border-color: #a99aff;
+          }
+          #toolBrushPreview {
+            display: block;
+            margin-top: 8px;
+          }
+        </style>
+        <div class="tool-setting-row">
+          <label for="brushOpacity">الشفافية</label>
+          <output id="brushOpacityValue">100%</output>
+        </div>
+        <input id="brushOpacity" data-setting="opacity"
+               type="range" min="0" max="1"
+               step="0.01" value="1">
+
+        <div class="tool-setting-row">
+          <label for="smoothing">التنعيم</label>
+          <output id="smoothingValue">35%</output>
+        </div>
+        <input id="smoothing" data-setting="smoothing"
+               type="range" min="0" max="1"
+               step="0.05" value="0.35">
+
+        <label class="setting-toggle">
+          <input id="pressureEnabled"
+                 data-setting="pressureEnabled"
+                 type="checkbox" checked>
+          دعم ضغط القلم
+        </label>
+
+
+
+      </section>
+
+      <!-- CANVAS AREA -->
+      <section id="canvasBoard" class="canvas-area">
+
+        <div id="viewport-container"
+             class="canvas-viewport">
+
+          <svg id="drawingCanvas"
+               xmlns="http://www.w3.org/2000/svg"
+               xmlns:xlink="http://www.w3.org/1999/xlink"
+               viewBox="0 0 1600 1000"
+               preserveAspectRatio="xMidYMid meet">
+
+            <rect id="canvasBackground"
+                  x="0"
+                  y="0"
+                  width="1600"
+                  height="1000"
+                  fill="#ffffff"/>
+
+            <g id="viewport">
+
+              <g id="gridLayer"></g>
+
+              <g id="drawingLayer"></g>
+
+              <g id="guideLayer"></g>
+
+              <g id="selectionLayer"></g>
+
+              <g id="previewLayer"></g>
+
+            </g>
+
+          </svg>
+
+        </div>
+
+        <!-- ZOOM CONTROLS -->
+        <div class="zoom-controls">
+
+          <button id="zoomOutBtn">−</button>
+
+          <span id="zoomLabel">100%</span>
+
+          <button id="zoomInBtn">+</button>
+
+          <button id="resetCameraBtn">
+            ملاءمة
+          </button>
+
+        </div>
+
+      </section>
+
+      
+      <!-- RASEM LAYERS PANEL -->
+      <aside id="layersPanel"
+             class="properties-panel"
+             hidden>
+<!-- COLOR -->
+        <section class="panel-section">
+
+          <h3>اللون</h3>
+
+          <input
+            id="colorPicker"
+            type="color"
+            value="#111111"
+          />
+
+          <div class="color-presets"
+               id="colorPresets">
+
+            <button data-color="#111111"
+                    style="--swatch:#111111"></button>
+
+            <button data-color="#ffffff"
+                    style="--swatch:#ffffff"></button>
+
+            <button data-color="#ff3333"
+                    style="--swatch:#ff3333"></button>
+
+            <button data-color="#3366ff"
+                    style="--swatch:#3366ff"></button>
+
+            <button data-color="#22aa66"
+                    style="--swatch:#22aa66"></button>
+
+            <button data-color="#ffcc33"
+                    style="--swatch:#ffcc33"></button>
+
+          </div>
+
+        </section>
+
+        
+
+        <!-- LAYERS -->
+        <section class="panel-section layers-section">
+
+          <div class="panel-heading">
+            <h3>الطبقات</h3>
+
+            <button id="addLayerBtn"
+                    title="إضافة طبقة">
+              +
+            </button>
+          </div>
+
+          <div id="layerList"
+               class="layers-list">
+          </div>
+
+          <div class="layer-actions">
+
+            <button id="deleteLayerBtn">
+              حذف
+            </button>
+
+            <button id="toggleLayerBtn">
+              إظهار / إخفاء
+            </button>
+
+            <button id="lockLayerBtn">
+              قفل
+            </button>
+
+          </div>
+
+        </section>
+
+      
+      </aside>
+
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+
+      <span id="statusText">
+        جاهز للرسم
+      </span>
+
+      <span id="coordinatesLabel">
+        X: 0 | Y: 0
+      </span>
+
+      <span id="layerCount">
+        الطبقات: 1
+      </span>
+
+    </footer>
+
+  </div>
+
+  <!-- EXPORT DIALOG -->
+  <dialog id="exportDialog">
+
+    <h2>تصدير الرسم</h2>
+
+    <button data-export="svg">
+      SVG
+    </button>
+
+    <button data-export="png">
+      PNG
+    </button>
+
+    <button data-export="pdf">
+      PDF
+    </button>
+
+    <button id="closeExportBtn">
+      إغلاق
+    </button>
+
+  </dialog>
+
+  <!-- NOTIFICATIONS -->
+  <div id="toast"
+       class="toast"
+       role="status"
+       aria-live="polite">
+  </div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("mobilePanelBtn");
+  const panel = document.getElementById("propertiesPanel");
+
+  if (!btn || !panel) return;
+
+  btn.addEventListener("click", () => {
+    panel.classList.toggle("mobile-panel-open");
+    btn.setAttribute(
+      "aria-expanded",
+      String(panel.classList.contains("mobile-panel-open"))
+    );
+  });
+});
+</script>
+
+  <script type="module" src="./js/color-ui.js"></script>
+<script type="module" src="./js/tool-settings-popup.js"></script>
+
+<script>
+(() => {
+  const toolbar = document.getElementById("toolbar");
+  if (!toolbar) return;
+
+  const toggle = toolbar.querySelector(".geometry-menu-toggle");
+  const menu = toolbar.querySelector(".geometry-menu");
+
+  if (!toggle || !menu) return;
+
+  function closeMenu() {
+    menu.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", () => {
+    const opening = menu.hidden;
+    menu.hidden = !opening;
+    toggle.setAttribute("aria-expanded", String(opening));
+  });
+
+  menu.addEventListener("click", event => {
+    const item = event.target.closest("[data-tool]");
+    if (!item) return;
+
+    menu.querySelectorAll(".geometry-item").forEach(button => {
+      button.classList.toggle("active", button === item);
+    });
+
+    closeMenu();
+  });
+
+  document.addEventListener("click", event => {
+    if (!toolbar.contains(event.target)) closeMenu();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeMenu();
+  });
+})();
+</script>
+
+
+<script>
+(() => {
+  const button = document.getElementById("settingsMenuBtn");
+  const menu = document.getElementById("settingsMenu");
+  const close = document.getElementById("closeSettingsMenu");
+
+  if (!button || !menu || !close) return;
+
+  const setOpen = (open) => {
+    menu.hidden = !open;
+    button.setAttribute("aria-expanded", String(open));
+  };
+
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setOpen(menu.hidden);
+  });
+
+  close.addEventListener("click", () => setOpen(false));
+
+  document.addEventListener("click", (event) => {
+    if (!menu.contains(event.target) &&
+        !button.contains(event.target)) {
+      setOpen(false);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
+  });
+
+  menu.querySelectorAll("button").forEach((item) => {
+    item.addEventListener("click", () => {
+      if (item.id !== "closeSettingsMenu") {
+        setOpen(false);
+      }
+    });
+  });
+})();
+</script>
+
+
+<script>
+/* RASEM_SETTINGS_OUTSIDE_POINTER_CLOSE */
+(() => {
+  const menu = document.getElementById("settingsMenu");
+  const opener = document.getElementById("settingsMenuBtn");
+
+  if (!menu || !opener) return;
+
+  document.addEventListener("pointerdown", (event) => {
+    if (menu.hidden) return;
+
+    if (
+      !menu.contains(event.target) &&
+      !opener.contains(event.target)
+    ) {
+      menu.hidden = true;
+      opener.setAttribute("aria-expanded", "false");
+    }
+  }, true);
+})();
+</script>
+
+
+
+<script>
+/* RASEM_CANVAS_LAYERS_NAVIGATION */
+(() => {
+  function initializeCanvasNavigation() {
+    const canvasButton = document.getElementById("openCanvasBtn");
+    const layersButton = document.getElementById("openLayersBtn");
+    const canvas = document.getElementById("canvasBoard");
+    const layers = document.getElementById("layersPanel");
+    const menu = document.getElementById("settingsMenu");
+    const menuButton = document.getElementById("settingsMenuBtn");
+
+    if (!canvasButton || !layersButton || !canvas || !layers) {
+      console.error("RASEM: Canvas navigation elements missing");
+      return;
+    }
+
+    function closeMenu() {
+      if (menu) menu.hidden = true;
+      menuButton?.setAttribute("aria-expanded", "false");
+    }
+
+    function showCanvas() {
+      canvas.hidden = false;
+      canvas.style.removeProperty("display");
+      canvas.removeAttribute("aria-hidden");
+
+      layers.hidden = true;
+      layers.setAttribute("aria-hidden", "true");
+
+      closeMenu();
+
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event("resize"));
+      });
+    }
+
+    function showLayers() {
+      canvas.hidden = false;
+      layers.hidden = false;
+      layers.removeAttribute("aria-hidden");
+
+      closeMenu();
+    }
+
+    canvasButton.addEventListener("click", showCanvas);
+    layersButton.addEventListener("click", showLayers);
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        showCanvas();
+      }
+    });
+
+    document.addEventListener("pointerdown", event => {
+      if (
+        !layers.hidden &&
+        !layers.contains(event.target) &&
+        !event.target.closest("#openLayersBtn") &&
+        (
+          event.target.closest("#drawingCanvas") ||
+          event.target.closest(".canvas-area")
+        )
+      ) {
+        showCanvas();
+      }
+    });
+
+    // Start in drawing mode.
+    showCanvas();
+
+    console.log("RASEM: Canvas navigation initialized");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeCanvasNavigation,
+      { once: true }
+    );
+  } else {
+    initializeCanvasNavigation();
+  }
+})();
+</script>
+
+
+<dialog id="newCanvasDialog"
+        aria-labelledby="newCanvasTitle"
+        style="max-width:360px;width:calc(100% - 32px);
+               border:1px solid #777;border-radius:14px;
+               padding:22px;background:var(--surface,#222);
+               color:var(--text,#fff)">
+  <h3 id="newCanvasTitle">إنشاء لوحة جديدة</h3>
+  <p>ماذا تريد أن تفعل باللوحة الحالية؟</p>
+
+  <div style="display:grid;gap:10px">
+    <button id="newCanvasSaveBtn" type="button">
+      حفظ الحالية وإنشاء لوحة جديدة
+    </button>
+
+    <button id="newCanvasDiscardBtn" type="button">
+      إنشاء جديدة دون حفظ الحالية
+    </button>
+
+    <button id="newCanvasCancelBtn" type="button">
+      إلغاء
+    </button>
+  </div>
+</dialog>
+
+
+<script type="module" src="./js/brush-library.js"></script>
+</body>
+</html>
